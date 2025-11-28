@@ -1,0 +1,133 @@
+<div style="background-color: #e5e5e5;min-height: 100vh;display: flex;justify-content: center;">
+<div style="width: 900px; height: 700px; margin: 20px auto; background: #3c3838;">
+  <header style="padding: 10px; background: #5a5454; color: white; height: 30px;">
+    <span style=" margin-left:40px;">Inventario MFE</span>
+    <button
+      onclick="localStorage.removeItem('access_token'); localStorage.removeItem('refresh_token'); window.history.pushState(null, '', '/login');"
+      style="float:right;margin-right:40px;background: #958784;border:#0c0b0b;border-radius: 5px; padding:6px;"
+    >
+      Cerrar sesión
+    </button>
+  </header>
+
+  <div *ngIf="error" style="color: red; margin-bottom: 10px;">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading">Cargando...</div>
+
+  <!-- Formulario registrar / editar -->
+  <h3  style="color: aliceblue; margin-left:40px;font-size: 30px;">{{ editId === null ? 'Registrar compra' : 'Editar compra' }}</h3>
+
+  <form (ngSubmit)="onSubmit()" style="margin-bottom: 20px; margin-left:40px;">
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+      <input
+        style="height: 25px;"
+        type="text"
+        placeholder="Código"
+        [(ngModel)]="codigo"
+        name="codigo"
+      />
+      <input
+      style="height: 25px;"
+        type="text"
+        placeholder="Nombre artículo"
+        [(ngModel)]="nombre"
+        name="nombre"
+      />
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+      <input
+        style="height: 25px;"
+        type="number"
+        placeholder="Precio"
+        [(ngModel)]="precio"
+        name="precio"
+      />
+      <input
+        style="height: 25px;"
+        type="number"
+        placeholder="Cantidad"
+        [(ngModel)]="cantidad"
+        name="cantidad"
+      />
+    </div>
+
+    <button type="submit" style="height:30px; width:150px; color: rgb(30, 27, 27);background: #c14a30;border:#c14a30;border-radius: 15px;">
+      {{ editId === null ? 'Guardar' : 'Actualizar' }}
+    </button>
+
+    <button
+      *ngIf="editId !== null"
+      type="button"
+      (click)="cancelarEdicion()"
+      style="margin-left: 27px;height:30px; width:150px; color: rgb(30, 27, 27);background: #c14a30;border:#c14a30;border-radius: 15px;"
+    >
+      Cancelar edición
+    </button>
+  </form>
+
+  <!-- Lista de compras -->
+  <h3  style="margin-left:40px; color: aliceblue;">Lista de compras</h3>
+
+  <p *ngIf="!loading && compras.length === 0">
+    No hay compras registradas.
+  </p>
+
+  <div style="margin-bottom: 10px;">
+    <label style="margin-right: 8px; color: aliceblue; margin-left:40px;">Filtrar por estado:</label>
+    <select  [(ngModel)]="filtroEstado" name="filtroEstado" style="background: #958784;border:#0c0b0b;border-radius: 5px; padding:7px;">
+      <option value="TODOS">Todos</option>
+      <option *ngFor="let est of ESTADOS" [value]="est">
+        {{ est }}
+      </option>
+    </select>
+  </div>
+  
+  <table
+    *ngIf="compras.length > 0"
+    border="1"
+    cellspacing="0"
+    cellpadding="6"
+    style="width: 700; margin-left:40px;min-width:700px;"
+  >
+    <thead  style="color: aliceblue; ">
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody  style="color: aliceblue;">
+      <tr *ngFor="let c of comprasFiltradas">
+        <td>{{ c.codigo }}</td>
+        <td>{{ c.nombre }}</td>
+        <td>{{ c.precio }}</td>
+        <td>{{ c.cantidad }}</td>
+        <td>
+          <select 
+            style="background: #958784;border:#0c0b0b;border-radius: 5px; padding:7px;"
+            [ngModel]="c.estado"
+            (ngModelChange)="cambiarEstado(c, $event)"
+          >
+            <option *ngFor="let est of ESTADOS" [value]="est">
+              {{ est }}
+            </option>
+          </select>
+        </td>
+        <td style="width: 150px;">
+          <button style="margin-left: 10px;background: rgb(146, 129, 129);border:#0c0b0b;border-radius: 5px;padding:7px" type="button" (click)="editar(c)">
+            Editar</button>
+          <button style="margin-left: 10px;background: #918380;border:#494241;border-radius: 5px;padding:7px;" type="button" (click)="eliminar(c.id)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
